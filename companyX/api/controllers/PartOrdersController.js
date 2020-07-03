@@ -6,9 +6,9 @@ function showError(code, message, res) {
     res.view("\\pages\\error", { error: error });
 }
 
-// function showErrorJobPart(jobName, partID, res) {
+// function showErrorJobPart(jobName, partId, res) {
 //     let code = "400";
-//     let message = "jobName: " + jobName + " or partID: " + partID + " does not exist.";
+//     let message = "jobName: " + jobName + " or partId: " + partId + " does not exist.";
 //     showError(code, message, res);
 // }
 
@@ -36,15 +36,15 @@ module.exports = {
     // GET ONE BY ID
     viewDataByID: async function (req, res) {
         const jobName = req.param('jobName');
-        const partID = parseInt(req.param('partID'));
-        const userID = parseInt(req.param('userID'));
-        const sqlSelectOne = "SELECT * FROM partOrders WHERE jobName = '" + jobName + "' AND partID = " + partID + " AND userID = " + userID;
+        const partId = parseInt(req.param('partId'));
+        const userId = parseInt(req.param('userId'));
+        const sqlSelectOne = "SELECT * FROM partOrders WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
 
         await sails.sendNativeQuery(sqlSelectOne, function (err, rawResult) {
             var length = rawResult.rows.length;
             if (length == 0) {
                 let code = "400";
-                let message = "jobName: " + jobName + " with " + "partID: " + partID + " with " + "userID: " + userID + " do not exist, can't retrieve data.";
+                let message = "jobName: " + jobName + " with " + "partId: " + partId + " with " + "userId: " + userId + " do not exist, can't retrieve data.";
                 showError(code, message, res);
             } else {
                 var order = {};
@@ -60,24 +60,24 @@ module.exports = {
     // ADD DATA
     // addData: async function (req, res) {
     //     const jobName = req.body.jobName;
-    //     const partID = parseInt(req.body.partID);
-    //     const userID = parseInt(req.body.userID);
+    //     const partId = parseInt(req.body.partId);
+    //     const userId = parseInt(req.body.userId);
     //     const qty = parseInt(req.body.qty);
 
-    //     const sqlSelectOne = "SELECT * FROM partOrders WHERE jobName = '" + jobName + "' AND partID = " + partID + " AND userID = " + userID;
+    //     const sqlSelectOne = "SELECT * FROM partOrders WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
     //     await sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
     //         var length = rawResult.rows.length;
     //         if (length != 0) {
     //             let code = "400";
-    //             let message = "jobName: " + jobName + " with " + "partID: " + partID + " with userID: " + userID + " already exist, can't add data";
+    //             let message = "jobName: " + jobName + " with " + "partId: " + partId + " with userId: " + userId + " already exist, can't add data";
     //             showError(code, message, res);
     //         } else {
-    //             const sqlInsert = "INSERT INTO partOrders VALUES ('" + jobName + "', " + partID + ", " + userID + ", " + qty + ")";
+    //             const sqlInsert = "INSERT INTO partOrders VALUES ('" + jobName + "', " + partId + ", " + userId + ", " + qty + ")";
     //             try {
     //                 await sails.sendNativeQuery(sqlInsert);
     //                 res.redirect("/partOrders/viewData");
     //             } catch (err) {
-    //                 showErrorJobPart(jobName, partID, res);
+    //                 showErrorJobPart(jobName, partId, res);
     //                 throw err;
     //             }
     //         }
@@ -86,21 +86,21 @@ module.exports = {
     // UPDATE DATA
     // updateData: function (req, res) {
     //     const jobName = req.body.jobName;
-    //     const partID = parseInt(req.body.partID);
-    //     const userID = parseInt(req.body.userID);
+    //     const partId = parseInt(req.body.partId);
+    //     const userId = parseInt(req.body.userId);
     //     const qty = parseInt(req.body.qty);
 
-    //     const sqlSelectOne = "SELECT * FROM partOrders WHERE jobName = '" + jobName + "' AND partID = " + partID + " AND userID = " + userID;
+    //     const sqlSelectOne = "SELECT * FROM partOrders WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
     //     sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
     //         var length = rawResult.rows.length;
     //         if (length != 0) {
-    //             const sqlUpdate = "UPDATE partOrders SET qty = " + qty + " WHERE jobName = '" + jobName + "' AND partID = " + partID + " AND userID = " + userID;;
+    //             const sqlUpdate = "UPDATE partOrders SET qty = " + qty + " WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;;
     //             await sails.sendNativeQuery(sqlUpdate);
     //             res.redirect("/partOrders/viewData");
 
     //         } else {
     //             let code = "400";
-    //             let message = "jobName: " + jobName + " with partID: " + partID + " with userID: " + userID + " do not exist, can't update data";
+    //             let message = "jobName: " + jobName + " with partId: " + partId + " with userId: " + userId + " do not exist, can't update data";
     //             showError(code, message, res);
     //         }
     //     });
@@ -108,19 +108,19 @@ module.exports = {
     // DELETE DATA
     // deleteData: function (req, res) {
     //     const jobName = req.body.jobName;
-    //     const partID = parseInt(req.body.partID);
-    //     const userID = parseInt(req.body.userID);
+    //     const partId = parseInt(req.body.partId);
+    //     const userId = parseInt(req.body.userId);
 
-    //     const sqlSelectOne = "SELECT * FROM partOrders WHERE jobName = '" + jobName + "' AND partID = " + partID + " AND userID = " + userID;
+    //     const sqlSelectOne = "SELECT * FROM partOrders WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
     //     sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
     //         var length = rawResult.rows.length;
     //         if (length != 0) {
-    //             const sqlDelete = "DELETE FROM partOrders WHERE jobName = '" + jobName + "' AND partID = " + partID + " AND userID = " + userID;
+    //             const sqlDelete = "DELETE FROM partOrders WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
     //             await sails.sendNativeQuery(sqlDelete);
     //             res.redirect("/partOrders/viewData");
     //         } else {
     //             let code = "400";
-    //             let message = "jobName: " + jobName + " with " + "partID: " + partID + " with userID: " + userID + " do not exist, can't delete data";
+    //             let message = "jobName: " + jobName + " with " + "partId: " + partId + " with userId: " + userId + " do not exist, can't delete data";
     //             showError(code, message, res);
     //         }
     //     });

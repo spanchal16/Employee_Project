@@ -6,9 +6,9 @@ function showError(code, message, res) {
     res.view("\\pages\\error", { error: error });
 }
 
-function showErrorPart(partID, res){
+function showErrorPart(partId, res){
     let code = "400";
-    let message = "partID: " + partID + " does not exist.";
+    let message = "partId: " + partId + " does not exist.";
     showError(code, message, res);
 }
 
@@ -36,14 +36,14 @@ module.exports = {
     // GET ONE BY ID
     viewDataByID: async function (req, res) {
         const jobName = req.param('jobName');
-        const partID = parseInt(req.param('partID'));
-        const sqlSelectOne = "SELECT * FROM jobs WHERE jobName = '" + jobName + "' AND partID = " + partID;
+        const partId = parseInt(req.param('partId'));
+        const sqlSelectOne = "SELECT * FROM jobs WHERE jobName = '" + jobName + "' AND partId = " + partId;
 
         await sails.sendNativeQuery(sqlSelectOne, function (err, rawResult) {
             var length = rawResult.rows.length;
             if (length == 0) {
                 let code = "400";
-                let message = "jobName: " + jobName + " with " + "partID: " + partID + " do not exist, can't retrieve data.";
+                let message = "jobName: " + jobName + " with " + "partId: " + partId + " do not exist, can't retrieve data.";
                 showError(code, message, res);
             } else {
                 var job = {};
@@ -59,23 +59,23 @@ module.exports = {
     // ADD DATA
     addData: async function (req, res) {
         const jobName = req.body.jobName;
-        const partID = parseInt(req.body.partID);
+        const partId = parseInt(req.body.partId);
         const qty = parseInt(req.body.qty);
 
-        const sqlSelectOne = "SELECT * FROM jobs WHERE jobName = '" + jobName + "' AND partID = " + partID;
+        const sqlSelectOne = "SELECT * FROM jobs WHERE jobName = '" + jobName + "' AND partId = " + partId;
         await sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
             var length = rawResult.rows.length;
             if (length != 0) {
                 let code = "400";
-                let message = "jobName: " + jobName + " with " + "partID: " + partID + " already exist, can't add data";
+                let message = "jobName: " + jobName + " with " + "partId: " + partId + " already exist, can't add data";
                 showError(code, message, res);
             } else {
-                const sqlInsert = "INSERT INTO jobs VALUES ('" + jobName + "', " + partID + ", " + qty + ")";
+                const sqlInsert = "INSERT INTO jobs VALUES ('" + jobName + "', " + partId + ", " + qty + ")";
                 try {
                     await sails.sendNativeQuery(sqlInsert);
                     res.redirect("/jobs/viewData");
                 } catch (err) {
-                    showErrorPart(partID, res);
+                    showErrorPart(partId, res);
                     throw err;
                 }
             }
@@ -84,20 +84,20 @@ module.exports = {
     // UPDATE DATA
     updateData: function (req, res) {
         const jobName = req.body.jobName;
-        const partID = parseInt(req.body.partID);
+        const partId = parseInt(req.body.partId);
         const qty = parseInt(req.body.qty);
 
-        const sqlSelectOne = "SELECT * FROM jobs WHERE jobName = '" + jobName + "' AND partID = " + partID;
+        const sqlSelectOne = "SELECT * FROM jobs WHERE jobName = '" + jobName + "' AND partId = " + partId;
         sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
             var length = rawResult.rows.length;
             if (length != 0) {
-                const sqlUpdate = "UPDATE jobs SET qty = " + qty + " WHERE jobName = '" + jobName + "' AND partID = " + partID;
+                const sqlUpdate = "UPDATE jobs SET qty = " + qty + " WHERE jobName = '" + jobName + "' AND partId = " + partId;
                 await sails.sendNativeQuery(sqlUpdate);
                 res.redirect("/jobs/viewData");
 
             } else {
                 let code = "400";
-                let message = "jobName: " + jobName + " with " + "partID: " + partID + " do not exist, can't update data";
+                let message = "jobName: " + jobName + " with " + "partId: " + partId + " do not exist, can't update data";
                 showError(code, message, res);
             }
         });
@@ -105,18 +105,18 @@ module.exports = {
     // DELETE DATA
     deleteData: function (req, res) {
         const jobName = req.body.jobName;
-        const partID = parseInt(req.body.partID);
+        const partId = parseInt(req.body.partId);
 
-        const sqlSelectOne = "SELECT * FROM jobs WHERE jobName = '" + jobName + "' AND partID = " + partID;
+        const sqlSelectOne = "SELECT * FROM jobs WHERE jobName = '" + jobName + "' AND partId = " + partId;
         sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
             var length = rawResult.rows.length;
             if (length != 0) {
-                const sqlDelete = "DELETE FROM jobs WHERE jobName = '" + jobName + "' AND partID = " + partID;
+                const sqlDelete = "DELETE FROM jobs WHERE jobName = '" + jobName + "' AND partId = " + partId;
                 await sails.sendNativeQuery(sqlDelete);
                 res.redirect("/jobs/viewData");
             } else {
                 let code = "400";
-                let message = "jobName: " + jobName + " with " + "partID: " + partID + " do not exist, can't delete data";
+                let message = "jobName: " + jobName + " with " + "partId: " + partId + " do not exist, can't delete data";
                 showError(code, message, res);
             }
         });
