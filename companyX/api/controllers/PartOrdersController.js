@@ -15,7 +15,7 @@ function showError(code, message, res) {
 module.exports = {
     // GET ALL
     viewData: function (req, res) {
-        const sqlSelectAll = "SELECT * FROM partOrders"
+        const sqlSelectAll = "SELECT * FROM partOrdersX"
         sails.sendNativeQuery(sqlSelectAll, function (err, rawResult) {
             let orders = [];
             for (let [key, value] of Object.entries(rawResult.rows)) {
@@ -38,7 +38,7 @@ module.exports = {
         const jobName = req.param('jobName');
         const partId = parseInt(req.param('partId'));
         const userId = parseInt(req.param('userId'));
-        const sqlSelectOne = "SELECT * FROM partOrders WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
+        const sqlSelectOne = "SELECT * FROM partOrdersX WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
 
         await sails.sendNativeQuery(sqlSelectOne, function (err, rawResult) {
             var length = rawResult.rows.length;
@@ -64,7 +64,7 @@ module.exports = {
     //     const userId = parseInt(req.body.userId);
     //     const qty = parseInt(req.body.qty);
 
-    //     const sqlSelectOne = "SELECT * FROM partOrders WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
+    //     const sqlSelectOne = "SELECT * FROM partOrdersX WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
     //     await sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
     //         var length = rawResult.rows.length;
     //         if (length != 0) {
@@ -72,7 +72,7 @@ module.exports = {
     //             let message = "jobName: " + jobName + " with " + "partId: " + partId + " with userId: " + userId + " already exist, can't add data";
     //             showError(code, message, res);
     //         } else {
-    //             const sqlInsert = "INSERT INTO partOrders VALUES ('" + jobName + "', " + partId + ", " + userId + ", " + qty + ")";
+    //             const sqlInsert = "INSERT INTO partOrdersX VALUES ('" + jobName + "', " + partId + ", " + userId + ", " + qty + ")";
     //             try {
     //                 await sails.sendNativeQuery(sqlInsert);
     //                 res.redirect("/partOrders/viewData");
@@ -90,11 +90,11 @@ module.exports = {
     //     const userId = parseInt(req.body.userId);
     //     const qty = parseInt(req.body.qty);
 
-    //     const sqlSelectOne = "SELECT * FROM partOrders WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
+    //     const sqlSelectOne = "SELECT * FROM partOrdersX WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
     //     sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
     //         var length = rawResult.rows.length;
     //         if (length != 0) {
-    //             const sqlUpdate = "UPDATE partOrders SET qty = " + qty + " WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;;
+    //             const sqlUpdate = "UPDATE partOrdersX SET qty = " + qty + " WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;;
     //             await sails.sendNativeQuery(sqlUpdate);
     //             res.redirect("/partOrders/viewData");
 
@@ -111,11 +111,11 @@ module.exports = {
     //     const partId = parseInt(req.body.partId);
     //     const userId = parseInt(req.body.userId);
 
-    //     const sqlSelectOne = "SELECT * FROM partOrders WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
+    //     const sqlSelectOne = "SELECT * FROM partOrdersX WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
     //     sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
     //         var length = rawResult.rows.length;
     //         if (length != 0) {
-    //             const sqlDelete = "DELETE FROM partOrders WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
+    //             const sqlDelete = "DELETE FROM partOrdersX WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
     //             await sails.sendNativeQuery(sqlDelete);
     //             res.redirect("/partOrders/viewData");
     //         } else {

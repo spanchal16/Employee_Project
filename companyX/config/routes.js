@@ -15,7 +15,7 @@ module.exports.routes = {
   "GET /jobs/deleteData": { view: "pages/jobs/deleteData" },
   "POST /jobs/deleteData": "JobsController.deleteData",
 
-  // route for partOrders Table
+  // route for partOrdersX Table
   // Retrieve data
   "GET /partOrders/viewData": "PartOrdersController.viewData",
   "GET /partOrders/viewDataByID": "PartOrdersController.viewDataByID",
