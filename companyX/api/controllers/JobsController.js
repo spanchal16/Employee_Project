@@ -3,7 +3,7 @@ function showError(code, message, res) {
         code: code,
         message: message
     }
-    res.view("\\pages\\error", { error: error });
+    res.view("pages/error", { error: error });
 }
 
 function showErrorPart(partId, res){
@@ -29,7 +29,7 @@ module.exports = {
                 res.send("Cannot find anything to show!")
             }
             if (jobs) {
-                res.view("\\pages\\jobs\\viewData", { jobs: jobs })
+                res.view("pages/jobs/viewData", { jobs: jobs })
             }
         });
     },
@@ -52,7 +52,7 @@ module.exports = {
                         job[k] = v;
                     }
                 }
-                res.view("\\pages\\jobs\\viewDataByID", { job: job });
+                res.view("pages/jobs/viewDataByID", { job: job });
             }
         });
     },
@@ -76,7 +76,7 @@ module.exports = {
                     res.redirect("/jobs/viewData");
                 } catch (err) {
                     showErrorPart(partId, res);
-                    throw err;
+                    //throw err;
                 }
             }
         });
@@ -120,5 +120,79 @@ module.exports = {
                 showError(code, message, res);
             }
         });
-    }
+    },
+
+    getAllJobs: async function(req, res){
+		
+		const sql = `SELECT * FROM jobs`;
+		
+		try {
+			var data = await sails.sendNativeQuery(sql);
+		} catch (err) {
+			switch (err.name) {
+				case 'UsageError': return res.badRequest(err);
+				//default: throw err;
+			}	
+		}
+		
+		//sails.log("Job data: ", data);
+		sails.log(data.rows);
+		return res.json(data.rows);
+	},
+
+	getDiffJobs: async function(req, res){
+		
+		const sql = `SELECT distinct jobName from jobs order by jobName`;
+		
+		try {
+			var data = await sails.sendNativeQuery(sql);
+		} catch (err) {
+			switch (err.name) {
+				case 'UsageError': return res.badRequest(err);
+				//default: throw err;
+			}	
+		}
+		
+		sails.log(data.rows);
+		return res.json(data.rows);
+	},
+
+	getOneJobp: async function(req, res){
+		//const where =`jobName = $1 and partId = ?`;
+		const where =`jobName = $1`;
+		const sql = `SELECT * FROM jobs WHERE ` + where;
+		let values= [req.params.jobName];
+
+		try {
+			var data = await sails.sendNativeQuery(sql, values);
+		} catch (err) {
+			switch (err.name) {
+				case 'UsageError': return res.badRequest(err);
+				//default: throw err;
+			}	
+		}
+		
+		sails.log(data.rows);
+		return res.json(data.rows);
+	},
+	
+	getOneJob: async function(req, res){
+		console.log(req.body);
+		//const where =`jobName = $1 and partId = ?`;
+		const where =`jobName = $1`;
+		const sql = `SELECT * FROM jobs WHERE ` + where;
+		let values= [req.body.jobName];
+
+		try {
+			var data = await sails.sendNativeQuery(sql, values);
+		} catch (err) {
+			switch (err.name) {
+				case 'UsageError': return res.badRequest(err);
+				//default: throw err;
+			}	
+		}
+		
+		sails.log(data.rows);
+		return res.json(data.rows);
+	},
 }

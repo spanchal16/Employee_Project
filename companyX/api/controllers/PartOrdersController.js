@@ -3,7 +3,7 @@ function showError(code, message, res) {
         code: code,
         message: message
     }
-    res.view("\\pages\\error", { error: error });
+    res.view("pages/error", { error: error });
 }
 
 // function showErrorJobPart(jobName, partId, res) {
@@ -29,7 +29,7 @@ module.exports = {
                 res.send("Cannot find anything to show!")
             }
             if (orders) {
-                res.view("\\pages\\partOrders\\viewData", { orders: orders })
+                res.view("pages/partOrders/viewData", { orders: orders })
             }
         });
     },
@@ -53,7 +53,7 @@ module.exports = {
                         order[k] = v;
                     }
                 }
-                res.view("\\pages\\partOrders\\viewDataByID", { order: order });
+                res.view("pages/partOrders/viewDataByID", { order: order });
             }
         });
     },

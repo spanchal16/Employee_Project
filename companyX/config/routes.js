@@ -19,6 +19,13 @@ module.exports.routes = {
   // Retrieve data
   "GET /partOrders/viewData": "PartOrdersController.viewData",
   "GET /partOrders/viewDataByID": "PartOrdersController.viewDataByID",
+  
+  // API routes
+  "GET /api/getAllJobs": "JobsController.getAllJobs",
+  "GET /api/getDiffJobs": "JobsController.getDiffJobs",
+  "GET /api/getOneJobp/:jobName": "JobsController.getOneJobp",
+  "POST /api/getOneJob": "JobsController.getOneJob",
+  
   // // Add data
   // "GET /partOrders/addData": { view: "pages/partOrders/addData" },
   // "POST /partOrders/addData": "PartOrdersController.addData",
