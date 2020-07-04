@@ -25,6 +25,8 @@ module.exports.routes = {
   "GET /api/getDiffJobs": "JobsController.getDiffJobs",
   "GET /api/getOneJobp/:jobName": "JobsController.getOneJobp",
   "POST /api/getOneJob": "JobsController.getOneJob",
+  "POST /api/savePartOrders": "PartOrdersController.savePartOrders",
+
   
   // // Add data
   // "GET /partOrders/addData": { view: "pages/partOrders/addData" },

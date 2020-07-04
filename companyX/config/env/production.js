@@ -221,7 +221,7 @@ module.exports = {
     *                                                                          *
     ***************************************************************************/
     cookie: {
-      // secure: true,
+      secure: true,
       maxAge: 24 * 60 * 60 * 1000,  // 24 hours
     },
 
@@ -254,6 +254,11 @@ module.exports = {
     //   'https://example.com',
     //   'https://staging.example.com',
     // ],
+    onlyAllowOrigins: [
+      'http://localhost:1337',
+      'https://a6-companyx.azurewebsites.net',
+      'https://sails.azurecr.io',
+    ],
 
 
     /***************************************************************************
@@ -325,7 +330,7 @@ module.exports = {
     * (https://sailsjs.com/config/http)                                        *
     *                                                                          *
     ***************************************************************************/
-    // trustProxy: true,
+    trustProxy: true,
 
   },
 

@@ -130,7 +130,8 @@ module.exports = {
 			var data = await sails.sendNativeQuery(sql);
 		} catch (err) {
 			switch (err.name) {
-				case 'UsageError': return res.badRequest(err);
+                case 'UsageError': return res.json({status: 'unsuccess'});
+                //case 'UsageError': return res.badRequest(err);
 				//default: throw err;
 			}	
 		}
@@ -148,7 +149,8 @@ module.exports = {
 			var data = await sails.sendNativeQuery(sql);
 		} catch (err) {
 			switch (err.name) {
-				case 'UsageError': return res.badRequest(err);
+                case 'UsageError': return res.json({status: 'unsuccess'});
+                //case 'UsageError': return res.badRequest(err);
 				//default: throw err;
 			}	
 		}
@@ -167,7 +169,8 @@ module.exports = {
 			var data = await sails.sendNativeQuery(sql, values);
 		} catch (err) {
 			switch (err.name) {
-				case 'UsageError': return res.badRequest(err);
+                case 'UsageError': return res.json({status: 'unsuccess'});
+                //case 'UsageError': return res.badRequest(err);
 				//default: throw err;
 			}	
 		}
@@ -187,7 +190,8 @@ module.exports = {
 			var data = await sails.sendNativeQuery(sql, values);
 		} catch (err) {
 			switch (err.name) {
-				case 'UsageError': return res.badRequest(err);
+                case 'UsageError': return res.json({status: 'unsuccess'});
+                //case 'UsageError': return res.badRequest(err);
 				//default: throw err;
 			}	
 		}

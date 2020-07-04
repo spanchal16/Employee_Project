@@ -57,6 +57,64 @@ module.exports = {
             }
         });
     },
+
+        // ADD DATA
+    addData: async function (req, res) {
+        const jobName = req.body.jobName;
+        const partId = parseInt(req.body.partId);
+        const qty = parseInt(req.body.qty);
+
+        const sqlSelectOne = "SELECT * FROM jobs WHERE jobName = '" + jobName + "' AND partId = " + partId;
+        await sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
+            var length = rawResult.rows.length;
+            if (length != 0) {
+                let code = "400";
+                let message = "jobName: " + jobName + " with " + "partId: " + partId + " already exist, can't add data";
+                showError(code, message, res);
+            } else {
+                const sqlInsert = "INSERT INTO jobs VALUES ('" + jobName + "', " + partId + ", " + qty + ")";
+                try {
+                    await sails.sendNativeQuery(sqlInsert);
+                    res.redirect("/jobs/viewData");
+                } catch (err) {
+                    showErrorPart(partId, res);
+                    //throw err;
+                }
+            }
+        });
+    },
+
+    // ADD DATA
+    savePartOrders: async function (req, res) {
+        console.log(req.body);
+        const partId = parseInt(req.body.partId);
+        const jobName = req.body.jobName;
+        const userId = parseInt(req.body.userId);
+        const qty = parseInt(req.body.qty);
+
+        const sqlSelectOne = "SELECT * FROM partOrdersX WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
+        await sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
+            var length = rawResult.rows.length;
+            if (length != 0) {
+                sails.log("jobName: " + jobName + " with " + "partId: " + partId + "userId: " + userId + " already exist, can't add data");
+                return res.json({status: 'unsuccess'});
+            } else {
+                const sqlInsert = "INSERT INTO partOrdersX VALUES ('" + jobName + "', " + partId + ", " + userId + ", " + qty + ")";
+                try {
+                    await sails.sendNativeQuery(sqlInsert);
+                    sails.log("row added to partOrdersX");
+                    return res.json({status: 'success'});
+
+                } catch (err) {
+                    sails.log("not able to add row to partOrdersX");
+                    return res.json({status: 'unsuccess'});
+                    //showErrorPart(partId, res);
+                    //throw err;
+                }
+            }
+        });
+    },
+
     // ADD DATA
     // addData: async function (req, res) {
     //     const jobName = req.body.jobName;
