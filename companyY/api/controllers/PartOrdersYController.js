@@ -1,10 +1,12 @@
 module.exports = {
+  //To display all orders
   list: function (req, res) {
-    PartOrdersY.find({}).exec(function (err, partOrders) {
-      if (err) {
-        res.send(500, { error: "Database Error" });
-      }
-      res.view("pages/orderedparts", { partOrders: partOrders });
-    });
+    PartOrdersY.find({})
+      .then(function (partOrders) {
+        return res.view("pages/orderedparts", { partOrders: partOrders });
+      })
+      .catch(function (err) {
+        return res.redirect("/notfound");
+      });
   },
 };
