@@ -6,7 +6,7 @@ module.exports = {
         return res.view("pages/homepage", { parts: parts });
       })
       .catch(function (err) {
-        return res.redirect("/notfound");
+        return res.view("error", { err: err });
       });
   },
 
@@ -21,7 +21,7 @@ module.exports = {
         return res.redirect("/");
       })
       .catch(function (err) {
-        return res.redirect("/notfound");
+        return res.view("error", { err: err });
       });
   },
 
@@ -34,7 +34,7 @@ module.exports = {
         return res.view("pages/editpart", { parts: parts });
       })
       .catch(function (err) {
-        return res.redirect("/notfound");
+        return res.view("error", { err: err });
       });
   },
 
@@ -53,7 +53,7 @@ module.exports = {
         res.redirect("/");
       })
       .catch(function (err) {
-        return res.redirect("/notfound");
+        return res.view("error", { err: err });
       });
   },
 
@@ -70,7 +70,72 @@ module.exports = {
         }
       })
       .catch(function (err) {
-        return res.redirect("/notfound");
+        return res.view("error", { err: err });
+      });
+  },
+
+  //To list all parts using (API)
+  listAllParts: function (req, res) {
+    Parts.find({})
+      .then(function (parts) {
+        return res.status(200).json(parts);
+      })
+      .catch(function (err) {
+        return res.send(500, { error: `Something Went Wrong!\n${err}` });
+      });
+  },
+
+  //Edit particular part using (API)
+  edit: function (req, res) {
+    const url = require("url");
+    const custom_url = new URL(
+      req.protocol + "://" + req.get("host") + req.originalUrl
+    );
+    console.log(custom_url);
+    const search_param = custom_url.searchParams;
+    if (JSON.stringify(req.query) === "{}") {
+      res.status(404).json({
+        message: "Please enter proper parameter",
+      });
+    } else if (
+      search_param.has("partid") === false ||
+      search_param.has("qoh") === false
+    ) {
+      res.status(404).json({
+        message: "Please enter proper parameter",
+      });
+    } else if (req.query.partid === "" || req.query.qoh === "") {
+      res.status(404).json({
+        message: "Please enter proper parameter",
+      });
+    } else {
+      Parts.update(
+        {
+          id: req.query.partid,
+        },
+        {
+          qoh: req.query.qoh,
+        }
+      )
+        .then(function () {
+          return res.ok();
+        })
+        .catch(function (err) {
+          return res.send(500, { error: `Something Went Wrong!\n${err}` });
+        });
+    }
+  },
+
+  //Search particular part using (API)
+  searchPart: function (req, res) {
+    Parts.findOne({
+      id: req.params.partId,
+    })
+      .then(function (parts) {
+        return res.status(200).json(parts);
+      })
+      .catch(function (err) {
+        return res.send(500, { error: `Something Went Wrong!\n${err}` });
       });
   },
 };
