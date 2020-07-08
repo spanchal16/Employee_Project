@@ -11,5 +11,9 @@
 module.exports.routes = {
   //Lists all parts on the homepage
   "/": { view: "pages/homepage" },
-  "GET /": "JobPartsController.list",
+  "GET /": "JobSearchController.list",
+
+  //Search particular job using jobName (UI)
+    "GET /searchjob": { view: "pages/searchjob" },
+    "POST /searchjob": "JobSearchController.search",
 };
