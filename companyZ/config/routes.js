@@ -18,6 +18,16 @@ module.exports.routes = {
     "POST /searchjob": "JobSearchController.search",
 
   //View all parts for particular job
+
+  "GET /viewJob/": "JobSearchController.view",
   "GET /viewJob/:jobName": "JobSearchController.view",
-  "POST /viewJob/:jobName": "PartsController.authenticate",
+
+  //Authenticate User
+  "GET /authenticateUser": "JobSearchController.authenticateUI",
+  "GET /authenticateUser/:jobName": "JobSearchController.authenticateUI",
+  "POST /authenticateUser/:jobName": "JobSearchController.authenticate",
+
+//Check order fulfillment
+  "GET /orderResults/:jobName": "JobSearchController.checkOrder",
+  
 };

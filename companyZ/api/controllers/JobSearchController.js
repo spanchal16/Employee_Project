@@ -5,8 +5,11 @@
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
 const axios = require('axios')
+let userAuthenticated = false;
 module.exports = {
+
   list: function (req, res) {
+    userAuthenticated = false;
     axios.get(
       "https://a6-companyx.azurewebsites.net/api/getDiffJobs"
     )
@@ -21,6 +24,7 @@ module.exports = {
   },
 
   search: function (req, res) {
+    userAuthenticated = false;
     let jName = req.body.txtjobname;
     axios.get(
       "https://a6-companyx.azurewebsites.net/api/getOneJobp/" + jName
@@ -36,6 +40,12 @@ module.exports = {
   },
 
    view: async function (req, res) {
+     userAuthenticated = false;
+
+     if (req.params.jobName === undefined){
+      res.redirect('..');
+    }
+
     let jName = req.params.jobName;
     let date_time = new Date();
 
@@ -87,5 +97,33 @@ module.exports = {
 
   },
 
+  authenticateUI: function (req, res) {
+    userAuthenticated = false;
+    if (req.params.jobName === undefined){
+      res.redirect('..');
+    }
+    let jName = req.params.jobName;
+    
+    return res.view("pages/authenticateUser", { jName });
+  },
+
+  authenticate: function (req, res) {
+    let jName = req.params.jobName;
+    //Validate here and return the view orderResults with jName and set userAuthenticated = true if credentials are correct
+
+  },
+
+  checkOrder: function (req, res) {
+    userAuthenticated = false;
+    if(userAuthenticated){
+
+    }
+    else{
+      let jName = req.params.jobName;
+    //  console.log("here");
+      return res.redirect("/authenticateUser/"+jName);
+    }
+
+  },
 
 };
