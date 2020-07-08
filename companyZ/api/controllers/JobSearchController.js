@@ -113,7 +113,7 @@ module.exports = {
     //return res.redirect("/orderResults?jobName=job1&userId=1");
   },
 
-  checkOrder: function (req, res) {
+  checkOrder: async function (req, res) {
     userAuthenticated = true;
 
     if (userAuthenticated) {
@@ -139,6 +139,18 @@ module.exports = {
       }
       else {
         //DODODODODOOD
+
+        //Check if fulfilled order exists already
+        const sqlSelect = "SELECT * FROM jobParts WHERE jobName = '" + req.query.jobName + "' AND userId = '" 
+        + req.query.userId +"'"+ " AND result = 'success'";
+        
+        await sails.sendNativeQuery(sqlSelect, async function (err, results) {
+          var length = results["rows"].length;
+          if (length != 0) {
+            let orderFailed = "Your already ordered this job once"
+            res.send(orderFailed);
+          } 
+        });
         //Get all the parts and quantity required and store it as json array
         axios.get(
           "https://a6-companyx.azurewebsites.net/api/getOneJobp/" + req.query.jobName
