@@ -16,4 +16,8 @@ module.exports.routes = {
   //Search particular job using jobName (UI)
     "GET /searchjob": { view: "pages/searchjob" },
     "POST /searchjob": "JobSearchController.search",
+
+  //View all parts for particular job
+  "GET /viewJob/:jobName": "JobSearchController.view",
+  "POST /viewJob/:jobName": "PartsController.authenticate",
 };
