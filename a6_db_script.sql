@@ -14,8 +14,7 @@ CREATE TABLE IF NOT EXISTS cloud.jobs (
 jobName VARCHAR(10) NOT NULL,
 partId int NOT NULL,
 qty int NOT NULL,
-PRIMARY KEY (jobName, partId),
-FOREIGN KEY(partId) REFERENCES parts(partId));
+PRIMARY KEY (jobName, partId));
 
 INSERT INTO cloud.jobs VALUES ('job1', 1, 1);
 INSERT INTO cloud.jobs VALUES ('job1', 2, 1);
@@ -31,9 +30,7 @@ jobName VARCHAR(10) NOT NULL,
 partId int NOT NULL,
 userId int NOT NULL,
 qty int NOT NULL,
-PRIMARY KEY (jobName, partId, userId),
-FOREIGN KEY(jobName) REFERENCES jobs(jobName),
-FOREIGN KEY(partId) REFERENCES parts(partId));
+PRIMARY KEY (jobName, partId, userId));
 
 INSERT INTO cloud.partOrdersX VALUES ('job1', 1, '101', 1);
 INSERT INTO cloud.partOrdersX VALUES ('job2', 2, '102', 2);
