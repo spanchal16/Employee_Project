@@ -39,10 +39,10 @@ module.exports = {
 
   },
 
-   view: async function (req, res) {
-     userAuthenticated = false;
+  view: async function (req, res) {
+    userAuthenticated = false;
 
-     if (req.params.jobName === undefined){
+    if (req.params.jobName === undefined) {
       res.redirect('..');
     }
 
@@ -73,10 +73,10 @@ module.exports = {
     // prints date in YYYY-MM-DD format
     console.log(dateCurrent);
     let timeCurrent = hours + ":" + minutes + ":" + seconds
-    
+
     console.log(timeCurrent);
-    let vals = "values('"+jName+"',"+"'"+dateCurrent+"',"+"'"+timeCurrent+"')";
-    let sqlInsert = "insert into search "+ vals;
+    let vals = "values('" + jName + "'," + "'" + dateCurrent + "'," + "'" + timeCurrent + "')";
+    let sqlInsert = "insert into search " + vals;
     //const sqlInsert = "INSERT INTO search VALUES ('" + jName + "', " + dateCurrent + ", " + timeCurrent + ")";
     try {
       await sails.sendNativeQuery(sqlInsert);
@@ -99,31 +99,67 @@ module.exports = {
 
   authenticateUI: function (req, res) {
     userAuthenticated = false;
-    if (req.params.jobName === undefined){
+    if (req.params.jobName === undefined) {
       res.redirect('..');
     }
     let jName = req.params.jobName;
-    
     return res.view("pages/authenticateUser", { jName });
   },
 
   authenticate: function (req, res) {
     let jName = req.params.jobName;
     //Validate here and return the view orderResults with jName and set userAuthenticated = true if credentials are correct
-
+    //When valid
+    //return res.redirect("/orderResults?jobName=job1&userId=1");
   },
 
   checkOrder: function (req, res) {
-    userAuthenticated = false;
-    if(userAuthenticated){
+    userAuthenticated = true;
 
+    if (userAuthenticated) {
+      const url = require("url");
+      const custom_url = new URL(
+        req.protocol + "://" + req.get("host") + req.originalUrl
+      );
+      console.log(custom_url);
+      const search_param = custom_url.searchParams;
+      if (JSON.stringify(req.query) === "{}") {
+        res.redirect('..');
+      }
+      else if (
+        search_param.has("jobName") === false ||
+        search_param.has("userId") === false
+      ) {
+        res.redirect('..');
+      }
+      else if (
+        req.query.jobName === "" ||
+        req.query.userId === "") {
+        res.redirect('..');
+      }
+      else {
+        //DODODODODOOD
+        //Get all the parts and quantity required and store it as json array
+        axios.get(
+          "https://a6-companyx.azurewebsites.net/api/getOneJobp/" + req.query.jobName
+        )
+          .then(function (jobs) {
+            jobs.data.forEach(function (job) {
+              
+            })
+          });
+
+        // Iterate over that JSON array to make individual requests for quantity on hand of that part the moment it is less break
+        
+        //If order success notify x,y,z and redirect
+
+        //If order failed, notify just z db and redirect to home
+
+      }
     }
-    else{
+    else {
       let jName = req.params.jobName;
-    //  console.log("here");
-      return res.redirect("/authenticateUser/"+jName);
+      return res.redirect("/authenticateUser/" + jName);
     }
-
   },
-
 };

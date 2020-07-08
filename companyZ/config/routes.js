@@ -28,6 +28,7 @@ module.exports.routes = {
   "POST /authenticateUser/:jobName": "JobSearchController.authenticate",
 
 //Check order fulfillment
+"GET /orderResults": "JobSearchController.checkOrder",
   "GET /orderResults/:jobName": "JobSearchController.checkOrder",
   
 };
