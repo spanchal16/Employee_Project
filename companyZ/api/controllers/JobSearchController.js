@@ -161,7 +161,6 @@ module.exports = {
       }
       else {
         let partReq = [];
-        //DODODODODOOD
 
 
         //Check if fulfilled order exists already
@@ -171,8 +170,8 @@ module.exports = {
         await sails.sendNativeQuery(sqlSelect, async function (err, results) {
           var length = results["rows"].length;
           if (length != 0) {
-            let orderFailed = "Your already ordered this job once"
-            res.send(orderFailed);
+            let msg = "OOPS! Looks like you already have ordered the job once!"
+            return res.view("pages/orderResults", { msg });
           }
         });
         //Get all the parts and quantity required and store it as json array
@@ -195,40 +194,39 @@ module.exports = {
         // current date
         // adjust 0 before single digit date
         let date = ("0" + date_time.getDate()).slice(-2);
-    
+
         // current month
         let month = ("0" + (date_time.getMonth() + 1)).slice(-2);
-    
+
         // current year
         let year = date_time.getFullYear();
-    
+
         // current hours
         let hours = date_time.getHours();
-    
+
         // current minutes
         let minutes = date_time.getMinutes();
-    
+
         // current seconds
         let seconds = date_time.getSeconds();
-    
+
         let dateCurrent = year + "-" + month + "-" + date
-    
+
         // prints date in YYYY-MM-DD format
-        
+
         let timeCurrent = hours + ":" + minutes + ":" + seconds
-        
+
         let re = "failure";
-        if(orderSuccess){
+        if (orderSuccess) {
           re = "success";
         }
-        
+
         //Update Z table
         for (let partR of partReq) {
           let vals = "values('" + partR.partId + "'," + "'" + req.query.jobName + "'," + "'" + req.query.userId + "'," +
-          "'" +partR.qty + "',"+ "'"+dateCurrent+"',"+ "'"+timeCurrent+"',"+ "'"+re
-          + "')";
+            "'" + partR.qty + "'," + "'" + dateCurrent + "'," + "'" + timeCurrent + "'," + "'" + re
+            + "')";
           let sqlInsert = "insert into jobParts " + vals;
-          //const sqlInsert = "INSERT INTO search VALUES ('" + jName + "', " + dateCurrent + ", " + timeCurrent + ")";
           try {
             await sails.sendNativeQuery(sqlInsert);
           }
@@ -241,9 +239,86 @@ module.exports = {
 
         if (orderSuccess) {
           console.log("Added to db");
+          let partMod = [];
+          //For Y table updating individual parts
+          //Fetching modified parts
+          for (let partR of partReq) {
+
+            await axios.get(
+              "http://companyy-env.eba-2uu3usha.us-east-1.elasticbeanstalk.com/api/part/" + partR.partId
+            )
+              .then(function (parts) {
+                let quantY = parseInt(parts.data.qoh, 10);
+                let quantX = parseInt(partR.qty, 10);
+                let sub = quantY - quantX;
+                let dt = {
+                  partId: partR.partId,
+                  qoh: sub
+                }
+                partMod.push(dt);
+              });
+
+          }
+          //Updating parts using y end Point
+          for (let pm of partMod) {
+            await axios.post(
+              "http://companyy-env.eba-2uu3usha.us-east-1.elasticbeanstalk.com/api/editpart?partid=" + pm.partId + "&qoh=" + pm.qoh
+
+            )
+              .then(function (parts) {
+              });
+          }
+
+          //Updating partOrders table
+          //Company Y
+          for (let partR of partReq) {
+            await axios.post(
+              "http://companyy-env.eba-2uu3usha.us-east-1.elasticbeanstalk.com/api/addorders?jobname="+req.query.jobName+"&partid="+partR.partId
+              +"&userid="+req.query.userId+"&qty="+partR.qty
+            )
+              .then(function (res) {
+               // console.log(res);
+              })
+              .catch(function (error) {
+               // console.log(error);
+              });
+          }
+
+          //Company X
+          for (let partR of partReq) {
+           await axios({
+              method: 'post',
+              url: "https://a6-companyx.azurewebsites.net//api/savePartOrders",
+              headers: {}, 
+              data: {
+                partId: partR.partId,
+                jobName: req.query.jobName,
+                userId: req.query.userId,
+                qty: partR.qty
+              }
+            });
+           /* await axios.post(
+              "https://a6-companyx.azurewebsites.net//api/savePartOrders"
+            //  "http://companyy-env.eba-2uu3usha.us-east-1.elasticbeanstalk.com/api/addorders?jobname="+req.query.jobName+"&partid="+partR.partId
+            //  +"&userid="+req.query.userId+"&qty="+partR.qty
+            )
+              .then(function (res) {
+               // console.log(res);
+              })
+              .catch(function (error) {
+               // console.log(error);
+              }); */
+
+          }
+
+          let msg = "Congrats! Your Order Has been placed Successfully!"
+          return res.view("pages/orderResults", { msg });
+
         }
         else {
-          //If order failed, notify just z db and redirect to home
+          
+          let msg = "OOPS! Looks like we are out of stock! We are working hard to stock our inventory again! Please visit again in some days!"
+          return res.view("pages/orderResults", { msg });
         }
       }
     }
