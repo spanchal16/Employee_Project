@@ -6,6 +6,29 @@
  */
 const axios = require('axios')
 let userAuthenticated = false;
+
+async function checkValues(partReq) {
+  let orderSuccess = true;
+  for (let partR of partReq) {
+
+    await axios.get(
+      "http://companyy-env.eba-2uu3usha.us-east-1.elasticbeanstalk.com/api/part/" + partR.partId
+    )
+      .then(function (parts) {
+        console.log("From Company Y : " + parts.data.qoh);
+        console.log("From Company X : " + partR.qty);
+        let quantY = parseInt(parts.data.qoh, 10);
+        let quantX = parseInt(partR.qty, 10);
+        let sub = quantY - quantX;
+        console.log("Diff:" + "" + sub)
+        if (quantY - quantX < 0) {
+          orderSuccess = false;
+        }
+      });
+  }
+  return orderSuccess;
+}
+
 module.exports = {
 
   list: function (req, res) {
@@ -94,7 +117,6 @@ module.exports = {
           console.log(jobs.data);
         return res.view("pages/viewJob", { jobs: jobs });
       });
-
   },
 
   authenticateUI: function (req, res) {
@@ -138,35 +160,91 @@ module.exports = {
         res.redirect('..');
       }
       else {
+        let partReq = [];
         //DODODODODOOD
 
+
         //Check if fulfilled order exists already
-        const sqlSelect = "SELECT * FROM jobParts WHERE jobName = '" + req.query.jobName + "' AND userId = '" 
-        + req.query.userId +"'"+ " AND result = 'success'";
-        
+        const sqlSelect = "SELECT * FROM jobParts WHERE jobName = '" + req.query.jobName + "' AND userId = '"
+          + req.query.userId + "'" + " AND result = 'success'";
+
         await sails.sendNativeQuery(sqlSelect, async function (err, results) {
           var length = results["rows"].length;
           if (length != 0) {
             let orderFailed = "Your already ordered this job once"
             res.send(orderFailed);
-          } 
+          }
         });
         //Get all the parts and quantity required and store it as json array
-        axios.get(
+        await axios.get(
           "https://a6-companyx.azurewebsites.net/api/getOneJobp/" + req.query.jobName
         )
           .then(function (jobs) {
             jobs.data.forEach(function (job) {
-              
+              partReq.push(job);
             })
           });
 
         // Iterate over that JSON array to make individual requests for quantity on hand of that part the moment it is less break
+        let orderSuccess = await checkValues(partReq);
+        console.log("Order Result: " + orderSuccess)
+
+        //Get date and time
+        let date_time = new Date();
+
+        // current date
+        // adjust 0 before single digit date
+        let date = ("0" + date_time.getDate()).slice(-2);
+    
+        // current month
+        let month = ("0" + (date_time.getMonth() + 1)).slice(-2);
+    
+        // current year
+        let year = date_time.getFullYear();
+    
+        // current hours
+        let hours = date_time.getHours();
+    
+        // current minutes
+        let minutes = date_time.getMinutes();
+    
+        // current seconds
+        let seconds = date_time.getSeconds();
+    
+        let dateCurrent = year + "-" + month + "-" + date
+    
+        // prints date in YYYY-MM-DD format
         
-        //If order success notify x,y,z and redirect
+        let timeCurrent = hours + ":" + minutes + ":" + seconds
+        
+        let re = "failure";
+        if(orderSuccess){
+          re = "success";
+        }
+        
+        //Update Z table
+        for (let partR of partReq) {
+          let vals = "values('" + partR.partId + "'," + "'" + req.query.jobName + "'," + "'" + req.query.userId + "'," +
+          "'" +partR.qty + "',"+ "'"+dateCurrent+"',"+ "'"+timeCurrent+"',"+ "'"+re
+          + "')";
+          let sqlInsert = "insert into jobParts " + vals;
+          //const sqlInsert = "INSERT INTO search VALUES ('" + jName + "', " + dateCurrent + ", " + timeCurrent + ")";
+          try {
+            await sails.sendNativeQuery(sqlInsert);
+          }
+          catch (err) {
+            console.log(err);
+          }
+        }
 
-        //If order failed, notify just z db and redirect to home
+        //If order success notify x,yand redirect
 
+        if (orderSuccess) {
+          console.log("Added to db");
+        }
+        else {
+          //If order failed, notify just z db and redirect to home
+        }
       }
     }
     else {
