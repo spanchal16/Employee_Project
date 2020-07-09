@@ -28,6 +28,11 @@ async function checkValues(partReq) {
   }
   return orderSuccess;
 }
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}   
 
 module.exports = {
 
@@ -194,6 +199,7 @@ module.exports = {
       }
       else {
         let partReq = [];
+        let temp = false;
        // let alreadyOrdered = false;
         //Check if fulfilled order exists already
         const sqlSelect = "SELECT * FROM jobParts WHERE jobName = '" + req.query.jobName + "' AND userId = '"
@@ -202,11 +208,21 @@ module.exports = {
         await sails.sendNativeQuery(sqlSelect,async function (err, results) {
           var length = results["rows"].length;
           if (length != 0) {
-            let msg = "OOPS! Looks like you already have ordered the job once!"
-            return res.view("pages/orderResults", { msg });
+           // let msg = "OOPS! Looks like you already have ordered the job once!"
+            temp = true;
+           // return res.view("pages/orderResults", { msg });
+            
           }
         }); 
 
+        console.log(1);
+        await sleep(5000);
+        //console.log(2);
+        console.log("tempppp : "+temp)
+        if (temp){
+          let msg = "OOPS! Looks like you already have ordered the job once!"
+          return res.view("pages/orderResults", { msg });
+        }
         let dataNotFound = false;
         //Get all the parts and quantity required and store it as json array
         await axios.get(
@@ -301,6 +317,7 @@ module.exports = {
               });
 
           }
+          if(!temp){
           //Updating parts using y end Point
           for (let pm of partMod) {
             await axios.post(
@@ -310,7 +327,7 @@ module.exports = {
               .then(function (parts) {
               });
           }
-
+        }
           //Updating partOrders table
           //Company Y
           for (let partR of partReq) {
