@@ -15,8 +15,8 @@ async function checkValues(partReq) {
       "http://companyy-env.eba-2uu3usha.us-east-1.elasticbeanstalk.com/api/part/" + partR.partId
     )
       .then(function (parts) {
-        console.log("From Company Y : " + parts.data.qoh);
-        console.log("From Company X : " + partR.qty);
+      //  console.log("From Company Y : " + parts.data.qoh);
+      //  console.log("From Company X : " + partR.qty);
         let quantY = parseInt(parts.data.qoh, 10);
         let quantX = parseInt(partR.qty, 10);
         let sub = quantY - quantX;
@@ -38,7 +38,7 @@ module.exports = {
     )
       .then(function (jobs) {
         jobs.data.forEach(function (job) {
-          console.log(job);
+         // console.log(job);
         }),
           console.log(jobs.data);
         return res.view("pages/homepage", { jobs: jobs });
@@ -94,10 +94,10 @@ module.exports = {
     let dateCurrent = year + "-" + month + "-" + date
 
     // prints date in YYYY-MM-DD format
-    console.log(dateCurrent);
+   // console.log(dateCurrent);
     let timeCurrent = hours + ":" + minutes + ":" + seconds
 
-    console.log(timeCurrent);
+    ///console.log(timeCurrent);
     let vals = "values('" + jName + "'," + "'" + dateCurrent + "'," + "'" + timeCurrent + "')";
     let sqlInsert = "insert into search " + vals;
     //const sqlInsert = "INSERT INTO search VALUES ('" + jName + "', " + dateCurrent + ", " + timeCurrent + ")";
@@ -112,86 +112,71 @@ module.exports = {
     )
       .then(function (jobs) {
         jobs.data.forEach(function (job) {
-          console.log(job);
-        }),
-          console.log(jobs.data);
+     //     console.log(job);
+        })
+       //   console.log(jobs.data);
         return res.view("pages/viewJob", { jobs: jobs });
       });
   },
-/*
+
   authenticateUI: function (req, res) {
     userAuthenticated = false;
     if (req.params.jobName === undefined) {
       res.redirect('..');
     }
     let jName = req.params.jobName;
-    return res.redirect("pages/authenticateUser/"+jName);
+    return res.view("pages/authenticateUser", { jName });
   },
-*/
+
   err: function (req, res) {
-  //  let jName = req.params.jobName;
+    //  let jName = req.params.jobName;
     return res.view("pages/authError");
   },
 
   authenticate: async function (req, res) {
-    let uName = req.body.username;
-
-    //Validate here and return the view orderResults with jName and set userAuthenticated = true if credentials are correct
-    //When valid
-    //return res.redirect("/orderResults?jobName=job1&userId=1");
-    
-     // let jName = req.params.jobName;
-      //Validate here and return the view orderResults with jName and set userAuthenticated = true if credentials are correct
-      console.log("queryiiingggg");
-      
-      try {
-        console.log("queryiiingggg");
-        await sails.sendNativeQuery(`Select * from userAuthentication where userId = '${req.body.username}' AND password =  '${req.body.password}'`
-        , function(err,result){
-          console.log(req.body.username);
-          console.log(req.body.password);
-          if(err){
+   // console.log("In Post")
+    userAuthenticated = false;
+    let jName = req.body.jobName;
+        try {
+      await sails.sendNativeQuery(`Select * from userAuthentication where userId = '${req.body.username}' AND password =  '${req.body.password}'`
+        , function (err, result) {
+          if (err) {
             console.log(err);
             res.send({
-              code:"404",
-              message:"Wrong id and password"
-              
-              })
+              code: "404",
+              message: "Wrong id and password"
+            })
           }
-  
-          else{
-            console.log("ssss");
+
+          else {
             finalLength = result["rows"].length;
-            if(finalLength <= 0 ){
-              console.log("Not vslid user");
-              return res.send("Not valid");
+            if (finalLength <= 0) {
+
+              return res.redirect("/authError");
             }
-            else{
-              return res.redirect("/orderResults?jobName=jName&userId=req.body.username");
+            else {
+              userAuthenticated = true;
+              return res.redirect("/orderResults?jobName=" + jName + "&userId=" + req.body.username);
             }
-            
+
           }
         }
-        
-        
-        );
-      }
-      catch (err) {
-        console.log(err);
-      }
-      
-    
+      );
+    }
+    catch (err) {
+      console.log(err);
+    }
   },
 
   checkOrder: async function (req, res) {
-    userAuthenticated = true;
+    //userAuthenticated = true;
 
     if (userAuthenticated) {
       const url = require("url");
       const custom_url = new URL(
         req.protocol + "://" + req.get("host") + req.originalUrl
       );
-      console.log(custom_url);
+     // console.log(custom_url);
       const search_param = custom_url.searchParams;
       if (JSON.stringify(req.query) === "{}") {
         res.redirect('..');
@@ -209,19 +194,20 @@ module.exports = {
       }
       else {
         let partReq = [];
-
-
+       // let alreadyOrdered = false;
         //Check if fulfilled order exists already
         const sqlSelect = "SELECT * FROM jobParts WHERE jobName = '" + req.query.jobName + "' AND userId = '"
           + req.query.userId + "'" + " AND result = 'success'";
 
-        await sails.sendNativeQuery(sqlSelect, async function (err, results) {
+        await sails.sendNativeQuery(sqlSelect,async function (err, results) {
           var length = results["rows"].length;
           if (length != 0) {
             let msg = "OOPS! Looks like you already have ordered the job once!"
             return res.view("pages/orderResults", { msg });
           }
-        });
+        }); 
+
+        let dataNotFound = false;
         //Get all the parts and quantity required and store it as json array
         await axios.get(
           "https://a6-companyx.azurewebsites.net/api/getOneJobp/" + req.query.jobName
@@ -230,7 +216,15 @@ module.exports = {
             jobs.data.forEach(function (job) {
               partReq.push(job);
             })
+            if (jobs.data.length == 0) {
+              dataNotFound = true;
+            }
           });
+
+        if (dataNotFound) {
+          let msg = "OOPS! Seems like you have tried accessing the link directly, please click home!"
+          return res.view("pages/orderResults", { msg });
+        }
 
         // Iterate over that JSON array to make individual requests for quantity on hand of that part the moment it is less break
         let orderSuccess = await checkValues(partReq);
@@ -321,23 +315,23 @@ module.exports = {
           //Company Y
           for (let partR of partReq) {
             await axios.post(
-              "http://companyy-env.eba-2uu3usha.us-east-1.elasticbeanstalk.com/api/addorders?jobname="+req.query.jobName+"&partid="+partR.partId
-              +"&userid="+req.query.userId+"&qty="+partR.qty
+              "http://companyy-env.eba-2uu3usha.us-east-1.elasticbeanstalk.com/api/addorders?jobname=" + req.query.jobName + "&partid=" + partR.partId
+              + "&userid=" + req.query.userId + "&qty=" + partR.qty
             )
               .then(function (res) {
-               // console.log(res);
+                // console.log(res);
               })
               .catch(function (error) {
-               // console.log(error);
+                // console.log(error);
               });
           }
 
           //Company X
           for (let partR of partReq) {
-           await axios({
+            await axios({
               method: 'post',
               url: "https://a6-companyx.azurewebsites.net//api/savePartOrders",
-              headers: {}, 
+              headers: {},
               data: {
                 partId: partR.partId,
                 jobName: req.query.jobName,
@@ -345,26 +339,11 @@ module.exports = {
                 qty: partR.qty
               }
             });
-           /* await axios.post(
-              "https://a6-companyx.azurewebsites.net//api/savePartOrders"
-            //  "http://companyy-env.eba-2uu3usha.us-east-1.elasticbeanstalk.com/api/addorders?jobname="+req.query.jobName+"&partid="+partR.partId
-            //  +"&userid="+req.query.userId+"&qty="+partR.qty
-            )
-              .then(function (res) {
-               // console.log(res);
-              })
-              .catch(function (error) {
-               // console.log(error);
-              }); */
-
           }
-
           let msg = "Congrats! Your Order Has been placed Successfully!"
           return res.view("pages/orderResults", { msg });
-
         }
         else {
-          
           let msg = "OOPS! Looks like we are out of stock! We are working hard to stock our inventory again! Please visit again in some days!"
           return res.view("pages/orderResults", { msg });
         }

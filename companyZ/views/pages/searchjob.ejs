@@ -22,7 +22,7 @@
   
       <br />
   
-      <% if (typeof jobs != 'undefined'){ if (jobs == null) { %>
+      <% if (typeof jobs != 'undefined'){ if (jobs == null || jobs.data[0] == null) { %>
   
       <div class="card border-danger bg-danger">
         <div class="card-body mx-auto">

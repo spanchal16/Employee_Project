@@ -23,14 +23,15 @@ module.exports.routes = {
   "GET /viewJob/:jobName": "JobSearchController.view",
 
   //Authenticate User
-  //"GET /authenticateUser": "JobSearchController.authenticateUI",
-  "GET /authenticateUser/:jobName": {view: "pages/authenticateUser"},
+  "GET /authenticateUser": "JobSearchController.authenticateUI",
+  "GET /authenticateUser/:jobName": "JobSearchController.authenticateUI",
   "POST /authenticateUser" : "JobSearchController.authenticate",
-
-  //"GET /authError": "JobSearchController.err",
 
 //Check order fulfillment
 "GET /orderResults": "JobSearchController.checkOrder",
   "GET /orderResults/:jobName": "JobSearchController.checkOrder",
+
+//Error
+"GET /authError": {view: "pages/authError"},
   
 };
