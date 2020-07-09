@@ -118,21 +118,69 @@ module.exports = {
         return res.view("pages/viewJob", { jobs: jobs });
       });
   },
-
+/*
   authenticateUI: function (req, res) {
     userAuthenticated = false;
     if (req.params.jobName === undefined) {
       res.redirect('..');
     }
     let jName = req.params.jobName;
-    return res.view("pages/authenticateUser", { jName });
+    return res.redirect("pages/authenticateUser/"+jName);
+  },
+*/
+  err: function (req, res) {
+  //  let jName = req.params.jobName;
+    return res.view("pages/authError");
   },
 
-  authenticate: function (req, res) {
-    let jName = req.params.jobName;
+  authenticate: async function (req, res) {
+    let uName = req.body.username;
+
     //Validate here and return the view orderResults with jName and set userAuthenticated = true if credentials are correct
     //When valid
     //return res.redirect("/orderResults?jobName=job1&userId=1");
+    
+     // let jName = req.params.jobName;
+      //Validate here and return the view orderResults with jName and set userAuthenticated = true if credentials are correct
+      console.log("queryiiingggg");
+      
+      try {
+        console.log("queryiiingggg");
+        await sails.sendNativeQuery(`Select * from userAuthentication where userId = '${req.body.username}' AND password =  '${req.body.password}'`
+        , function(err,result){
+          console.log(req.body.username);
+          console.log(req.body.password);
+          if(err){
+            console.log(err);
+            res.send({
+              code:"404",
+              message:"Wrong id and password"
+              
+              })
+          }
+  
+          else{
+            console.log("ssss");
+            finalLength = result["rows"].length;
+            if(finalLength <= 0 ){
+              console.log("Not vslid user");
+              return res.send("Not valid");
+            }
+            else{
+              return res.redirect("/orderResults?jobName=jName&userId=req.body.username");
+            }
+            
+          }
+        }
+        
+        
+        );
+      }
+      catch (err) {
+        console.log(err);
+      }
+      
+    
   },
 
   checkOrder: async function (req, res) {
