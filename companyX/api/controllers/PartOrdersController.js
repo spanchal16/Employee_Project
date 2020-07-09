@@ -15,7 +15,7 @@ function showError(code, message, res) {
 module.exports = {
     // GET ALL
     viewData: function (req, res) {
-        const sqlSelectAll = "SELECT * FROM partOrdersX"
+        const sqlSelectAll = `SELECT * FROM partOrdersX`
         sails.sendNativeQuery(sqlSelectAll, function (err, rawResult) {
             let orders = [];
             for (let [key, value] of Object.entries(rawResult.rows)) {
@@ -38,9 +38,9 @@ module.exports = {
         const jobName = req.param('jobName');
         const partId = parseInt(req.param('partId'));
         const userId = parseInt(req.param('userId'));
-        const sqlSelectOne = "SELECT * FROM partOrdersX WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
+        const sqlSelectOne = `SELECT * FROM partOrdersX WHERE jobName = $1 AND partId = $2 AND userId = $3`;
 
-        await sails.sendNativeQuery(sqlSelectOne, function (err, rawResult) {
+        await sails.sendNativeQuery(sqlSelectOne, [jobName, partId, userId], function (err, rawResult) {
             var length = rawResult.rows.length;
             if (length == 0) {
                 let code = "400";
@@ -58,32 +58,6 @@ module.exports = {
         });
     },
 
-        // ADD DATA
-    addData: async function (req, res) {
-        const jobName = req.body.jobName;
-        const partId = parseInt(req.body.partId);
-        const qty = parseInt(req.body.qty);
-
-        const sqlSelectOne = "SELECT * FROM jobs WHERE jobName = '" + jobName + "' AND partId = " + partId;
-        await sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
-            var length = rawResult.rows.length;
-            if (length != 0) {
-                let code = "400";
-                let message = "jobName: " + jobName + " with " + "partId: " + partId + " already exist, can't add data";
-                showError(code, message, res);
-            } else {
-                const sqlInsert = "INSERT INTO jobs VALUES ('" + jobName + "', " + partId + ", " + qty + ")";
-                try {
-                    await sails.sendNativeQuery(sqlInsert);
-                    res.redirect("/jobs/viewData");
-                } catch (err) {
-                    showErrorPart(partId, res);
-                    //throw err;
-                }
-            }
-        });
-    },
-
     // ADD DATA
     savePartOrders: async function (req, res) {
         console.log(req.body);
@@ -92,16 +66,16 @@ module.exports = {
         const userId = parseInt(req.body.userId);
         const qty = parseInt(req.body.qty);
 
-        const sqlSelectOne = "SELECT * FROM partOrdersX WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
-        await sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
+        const sqlSelectOne = `SELECT * FROM partOrdersX WHERE jobName = $1 AND partId = $2 AND userId = $3`;
+        await sails.sendNativeQuery(sqlSelectOne, [jobName, partId, userId], async function (err, rawResult) {
             var length = rawResult.rows.length;
             if (length != 0) {
                 sails.log("jobName: " + jobName + " with " + "partId: " + partId + "userId: " + userId + " already exist, can't add data");
                 return res.json({status: 'unsuccess'});
             } else {
-                const sqlInsert = "INSERT INTO partOrdersX VALUES ('" + jobName + "', " + partId + ", " + userId + ", " + qty + ")";
+                const sqlInsert = `INSERT INTO partOrdersX VALUES ($1, $2, $3, $4)`;
                 try {
-                    await sails.sendNativeQuery(sqlInsert);
+                    await sails.sendNativeQuery(sqlInsert, [jobName, partId, userId, qty]);
                     sails.log("row added to partOrdersX");
                     return res.json({status: 'success'});
 
@@ -113,7 +87,7 @@ module.exports = {
                 }
             }
         });
-    },
+    }
 
     // ADD DATA
     // addData: async function (req, res) {
@@ -122,17 +96,17 @@ module.exports = {
     //     const userId = parseInt(req.body.userId);
     //     const qty = parseInt(req.body.qty);
 
-    //     const sqlSelectOne = "SELECT * FROM partOrdersX WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
-    //     await sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
+    //     const sqlSelectOne = `SELECT * FROM partOrdersX WHERE jobName = $1 AND partId = $2 AND userId = $3`;
+    //     await sails.sendNativeQuery(sqlSelectOne, [jobName, partId, userId], async function (err, rawResult) {
     //         var length = rawResult.rows.length;
     //         if (length != 0) {
     //             let code = "400";
     //             let message = "jobName: " + jobName + " with " + "partId: " + partId + " with userId: " + userId + " already exist, can't add data";
     //             showError(code, message, res);
     //         } else {
-    //             const sqlInsert = "INSERT INTO partOrdersX VALUES ('" + jobName + "', " + partId + ", " + userId + ", " + qty + ")";
+    //             const sqlInsert = `INSERT INTO partOrdersX VALUES ($1, $2, $3, $4)`;
     //             try {
-    //                 await sails.sendNativeQuery(sqlInsert);
+    //                 await sails.sendNativeQuery(sqlInsert, [jobName, partId, userId, qty]);
     //                 res.redirect("/partOrders/viewData");
     //             } catch (err) {
     //                 showErrorJobPart(jobName, partId, res);
@@ -148,12 +122,12 @@ module.exports = {
     //     const userId = parseInt(req.body.userId);
     //     const qty = parseInt(req.body.qty);
 
-    //     const sqlSelectOne = "SELECT * FROM partOrdersX WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
-    //     sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
+    //     const sqlSelectOne = `SELECT * FROM partOrdersX WHERE jobName = $1 AND partId = $2 AND userId = $3`;
+    //     sails.sendNativeQuery(sqlSelectOne, [jobName, partId, userId], async function (err, rawResult) {
     //         var length = rawResult.rows.length;
     //         if (length != 0) {
-    //             const sqlUpdate = "UPDATE partOrdersX SET qty = " + qty + " WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;;
-    //             await sails.sendNativeQuery(sqlUpdate);
+    //             const sqlUpdate = `UPDATE partOrdersX SET qty = $1 WHERE jobName = $2 AND partId = $3 AND userId = $4`;
+    //             await sails.sendNativeQuery(sqlUpdate, [qty, jobName, partId, userId]);
     //             res.redirect("/partOrders/viewData");
 
     //         } else {
@@ -169,12 +143,12 @@ module.exports = {
     //     const partId = parseInt(req.body.partId);
     //     const userId = parseInt(req.body.userId);
 
-    //     const sqlSelectOne = "SELECT * FROM partOrdersX WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
-    //     sails.sendNativeQuery(sqlSelectOne, async function (err, rawResult) {
+    //     const sqlSelectOne = `SELECT * FROM partOrdersX WHERE jobName = $1 AND partId = $2 AND userId = $3`;
+    //     sails.sendNativeQuery(sqlSelectOne, [jobName, partId, userId], async function (err, rawResult) {
     //         var length = rawResult.rows.length;
     //         if (length != 0) {
-    //             const sqlDelete = "DELETE FROM partOrdersX WHERE jobName = '" + jobName + "' AND partId = " + partId + " AND userId = " + userId;
-    //             await sails.sendNativeQuery(sqlDelete);
+    //             const sqlDelete = `DELETE FROM partOrdersX WHERE jobName = $1 AND partId = $2 AND userId = $3`;
+    //             await sails.sendNativeQuery(sqlDelete, [jobName, partId, userId]);
     //             res.redirect("/partOrders/viewData");
     //         } else {
     //             let code = "400";
