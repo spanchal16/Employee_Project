@@ -7,4 +7,4 @@ In our Gitlab repository, there are three main folders which are companyX, compa
 ## Each company endpoint
 **Company X**: https://a6-companyx.azurewebsites.net/ \
 **Company Y**: http://companyy-env.eba-2uu3usha.us-east-1.elasticbeanstalk.com/ \
-**Company Z**: https://companyz.azurewebsites.net/ \
+**Company Z**: https://companyz.azurewebsites.net/ 
